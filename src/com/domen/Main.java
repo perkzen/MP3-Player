@@ -13,7 +13,25 @@ public class Main {
 	    Clip clip = AudioSystem.getClip();
 	    clip.open(stream);
 
-	    clip.start();
-
+	    String command = "";
+		System.out.println("Commands:\n-play\n-stop\n-quit");
+		while (!command.equals("quit")) {
+			command = sc.next();
+			command = command.toLowerCase();
+			switch (command) {
+				case "play":
+					clip.start();
+					break;
+				case "stop":
+					clip.stop();
+					break;
+				case "quit":
+					clip.close();
+					break;
+				default:
+					System.out.println("This command doesn't exist");
+					break;
+			}
+		}
     }
 }
