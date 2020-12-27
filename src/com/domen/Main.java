@@ -12,7 +12,8 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         int pointer = 0;
         String[] playlist = {"Koosen - Mood (Remix).wav", "Avicii - levels.wav", "Day 'N' Nite (Crookers Remix).wav", "HVME - GOOSEBUMPS (Official Video).wav", "Vinne - Pursuit of Happiness (feat. NorthStarAndre).wav"};
-
+        System.out.println("Commands:\n-play\n-stop\n-quit\n-next\n-prev\n-random");
+        System.out.println();
 
         File file = new File(playlist[pointer]);
         AudioInputStream stream = AudioSystem.getAudioInputStream(file);
@@ -20,7 +21,6 @@ public class Main {
         music.open(stream);
         music.start();
 
-        System.out.println("Commands:\n-play\n-stop\n-quit\n-next\n-prev\n-random");
         mainLoop(music,playlist,pointer);
     }
 
@@ -102,6 +102,7 @@ public class Main {
     }
 
     public static void mainLoop(Clip music, String[]playlist, int pointer) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        System.out.println(playlist[pointer] + " is now playing.");
         while (true) {
             Scanner sc = new Scanner(System.in);
             String command = sc.next();
