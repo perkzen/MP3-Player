@@ -1,4 +1,5 @@
 package com.domen;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
@@ -8,30 +9,51 @@ public class Main {
 
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
         Scanner sc = new Scanner(System.in);
-	    File file = new File("levels.wav");
-	    AudioInputStream stream = AudioSystem.getAudioInputStream(file);
-	    Clip clip = AudioSystem.getClip();
-	    clip.open(stream);
+        int pointer = 0;
+        String[] playlist = {"Koosen - Mood (Remix).wav", "Avicii - levels.wav", "Day 'N' Nite (Crookers Remix).wav", "HVME - GOOSEBUMPS (Official Video).wav", "Vinne - Pursuit of Happiness (feat. NorthStarAndre).wav"};
 
-	    String command = "";
-		System.out.println("Commands:\n-play\n-stop\n-quit");
-		while (!command.equals("quit")) {
-			command = sc.next();
-			command = command.toLowerCase();
-			switch (command) {
-				case "play":
-					clip.start();
-					break;
-				case "stop":
-					clip.stop();
-					break;
-				case "quit":
-					clip.close();
-					break;
-				default:
-					System.out.println("This command doesn't exist");
-					break;
-			}
-		}
+        File file = new File(playlist[pointer]);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        Clip music = AudioSystem.getClip();
+        music.open(stream);
+
+        boolean play = true;
+
+        System.out.println("Commands:\n-play\n-stop\n-quit");
+        music.start();
+        while (play) {
+            String command = sc.next();
+            pauseSong(command, music);
+            unpausetSong(command,music);
+            play = quitMusicPlayer(command, music);
+            pointer = nextSong(command,pointer,music);
+        }
+
+    }
+
+    public static void unpausetSong(String com, Clip music) {
+        if (com.equals("play")) {
+            music.start();
+        }
+    }
+
+    public static void pauseSong(String com, Clip music) {
+        if (com.equals("pause")) {
+            music.stop();
+        }
+    }
+
+    public static boolean quitMusicPlayer(String com, Clip music) {
+        if (com.equals("quit")) {
+            music.close();
+            return false;
+        } else {
+            return true;
+        }
+    }
+    public static void nextSong(String com, int pointer, Clip prev) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+        if (com.equals("next")) {
+
+        }
     }
 }
