@@ -12,25 +12,30 @@ public class Main {
         int pointer = 0;
         String[] playlist = {"Koosen - Mood (Remix).wav", "Avicii - levels.wav", "Day 'N' Nite (Crookers Remix).wav", "HVME - GOOSEBUMPS (Official Video).wav", "Vinne - Pursuit of Happiness (feat. NorthStarAndre).wav"};
 
+
         File file = new File(playlist[pointer]);
         AudioInputStream stream = AudioSystem.getAudioInputStream(file);
         Clip music = AudioSystem.getClip();
         music.open(stream);
-
+        music.start();
         boolean play = true;
 
-        System.out.println("Commands:\n-play\n-stop\n-quit");
-        music.start();
+        System.out.println("Commands:\n-play\n-stop\n-quit\n-next\n-prev");
+
         while (play) {
+
             String command = sc.next();
             pauseSong(command, music);
-            unpausetSong(command,music);
+            playSong(command, music);
+            nextSong(command, playlist, pointer, music, play);
+            prevSong(command, playlist, pointer, music, play);
             play = quitMusicPlayer(command, music);
+
         }
 
     }
 
-    public static void unpausetSong(String com, Clip music) {
+    public static void playSong(String com, Clip music) {
         if (com.equals("play")) {
             music.start();
         }
@@ -50,9 +55,62 @@ public class Main {
             return true;
         }
     }
-    public static void nextSong(String com, int pointer, Clip prev) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
-        if (com.equals("next")) {
 
+    public static void nextSong(String com, String[] playlist, int pointer, Clip prev, boolean play) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+
+        if (com.equals("next")) {
+            prev.close();
+
+            if (pointer < playlist.length - 1) {
+                pointer++;
+            } else {
+                pointer = 0;
+            }
+
+            File file = new File(playlist[pointer]);
+            AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+            Clip music = AudioSystem.getClip();
+            music.open(stream);
+            music.start();
+
+            while (play) {
+                Scanner sc = new Scanner(System.in);
+                String command = sc.next();
+                pauseSong(command, music);
+                playSong(command, music);
+                nextSong(command, playlist, pointer, music, play);
+                prevSong(command, playlist, pointer, music, play);
+                play = quitMusicPlayer(command, music);
+            }
+        }
+    }
+
+    public static void prevSong(String com, String[] playlist, int pointer, Clip current, boolean play) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+
+        if (com.equals("prev")) {
+            current.close();
+
+            if (pointer > 0) {
+                pointer--;
+            } else {
+                pointer = playlist.length - 1;
+            }
+
+            File file = new File(playlist[pointer]);
+            AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+            Clip music = AudioSystem.getClip();
+            music.open(stream);
+            music.start();
+
+            while (play) {
+                Scanner sc = new Scanner(System.in);
+                String command = sc.next();
+                pauseSong(command, music);
+                playSong(command, music);
+                nextSong(command, playlist, pointer, music, play);
+                prevSong(command, playlist, pointer, music, play);
+                play = quitMusicPlayer(command, music);
+            }
         }
     }
 }
