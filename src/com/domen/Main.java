@@ -26,7 +26,6 @@ public class Main {
             pauseSong(command, music);
             unpausetSong(command,music);
             play = quitMusicPlayer(command, music);
-            pointer = nextSong(command,pointer,music);
         }
 
     }
