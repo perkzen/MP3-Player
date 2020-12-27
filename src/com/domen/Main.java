@@ -3,6 +3,7 @@ package com.domen;
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -18,21 +19,9 @@ public class Main {
         Clip music = AudioSystem.getClip();
         music.open(stream);
         music.start();
-        boolean play = true;
 
-        System.out.println("Commands:\n-play\n-stop\n-quit\n-next\n-prev");
-
-        while (play) {
-
-            String command = sc.next();
-            pauseSong(command, music);
-            playSong(command, music);
-            nextSong(command, playlist, pointer, music, play);
-            prevSong(command, playlist, pointer, music, play);
-            play = quitMusicPlayer(command, music);
-
-        }
-
+        System.out.println("Commands:\n-play\n-stop\n-quit\n-next\n-prev\n-random");
+        mainLoop(music,playlist,pointer);
     }
 
     public static void playSong(String com, Clip music) {
@@ -47,16 +36,13 @@ public class Main {
         }
     }
 
-    public static boolean quitMusicPlayer(String com, Clip music) {
+    public static void quitMusicPlayer(String com) {
         if (com.equals("quit")) {
-            music.close();
-            return false;
-        } else {
-            return true;
+            System.exit(0);
         }
     }
 
-    public static void nextSong(String com, String[] playlist, int pointer, Clip prev, boolean play) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+    public static void nextSong(String com, String[] playlist, int pointer, Clip prev) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 
         if (com.equals("next")) {
             prev.close();
@@ -73,19 +59,11 @@ public class Main {
             music.open(stream);
             music.start();
 
-            while (play) {
-                Scanner sc = new Scanner(System.in);
-                String command = sc.next();
-                pauseSong(command, music);
-                playSong(command, music);
-                nextSong(command, playlist, pointer, music, play);
-                prevSong(command, playlist, pointer, music, play);
-                play = quitMusicPlayer(command, music);
-            }
+            mainLoop(music,playlist,pointer);
         }
     }
 
-    public static void prevSong(String com, String[] playlist, int pointer, Clip current, boolean play) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+    public static void prevSong(String com, String[] playlist, int pointer, Clip current) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 
         if (com.equals("prev")) {
             current.close();
@@ -102,15 +80,38 @@ public class Main {
             music.open(stream);
             music.start();
 
-            while (play) {
-                Scanner sc = new Scanner(System.in);
-                String command = sc.next();
-                pauseSong(command, music);
-                playSong(command, music);
-                nextSong(command, playlist, pointer, music, play);
-                prevSong(command, playlist, pointer, music, play);
-                play = quitMusicPlayer(command, music);
-            }
+            mainLoop(music,playlist,pointer);
+        }
+    }
+
+    public static void randomSong(String com, String[] playlist, int pointer, Clip prev) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+        Random r = new Random();
+
+        if (com.equals("random")) {
+            prev.close();
+            pointer = r.nextInt(playlist.length);
+
+            File file = new File(playlist[pointer]);
+            AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+            Clip music = AudioSystem.getClip();
+            music.open(stream);
+            music.start();
+
+            mainLoop(music,playlist,pointer);
+        }
+    }
+
+    public static void mainLoop(Clip music, String[]playlist, int pointer) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        while (true) {
+            Scanner sc = new Scanner(System.in);
+            String command = sc.next();
+            pauseSong(command, music);
+            playSong(command, music);
+            nextSong(command, playlist, pointer, music);
+            prevSong(command, playlist, pointer, music);
+            randomSong(command, playlist, pointer, music);
+            quitMusicPlayer(command);
         }
     }
 }
+
