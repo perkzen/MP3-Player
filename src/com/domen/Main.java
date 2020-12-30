@@ -9,17 +9,16 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Main {
 
     public static boolean isSongPlaying = true;
     private static Clip music;
     private static int pointer = 0;
+    private static long timer;
 
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
 
-        Scanner sc = new Scanner(System.in);
         String[] playlist = {"Koosen - Mood (Remix).wav", "Avicii - levels.wav", "Day 'N' Nite (Crookers Remix).wav", "HVME - GOOSEBUMPS (Official Video).wav", "Vinne - Pursuit of Happiness (feat. NorthStarAndre).wav"};
         System.out.println("Commands:\n-play\n-stop\n-quit\n-next\n-prev\n-random");
         System.out.println();
@@ -31,11 +30,11 @@ public class Main {
 
         createGUI(playlist);
 
-        music.start();
     }
 
     public static void playSong() {
         music.start();
+        timer = System.currentTimeMillis();
     }
 
     public static void pauseSong() {
@@ -56,7 +55,9 @@ public class Main {
         AudioInputStream stream = AudioSystem.getAudioInputStream(file);
         music = AudioSystem.getClip();
         music.open(stream);
-        music.start();
+        playSong();
+
+        addEndOfSongListener(playlist, songTitle);
 
         songTitle.setText(playlist[pointer].substring(0, playlist[pointer].indexOf(".wav")));
 
@@ -75,19 +76,23 @@ public class Main {
         AudioInputStream stream = AudioSystem.getAudioInputStream(file);
         music = AudioSystem.getClip();
         music.open(stream);
-        music.start();
+        playSong();
+
+        addEndOfSongListener(playlist, songTitle);
 
         songTitle.setText(playlist[pointer].substring(0, playlist[pointer].indexOf(".wav")));
     }
 
-    public static void restartSong(String[] playlist) throws IOException, LineUnavailableException, UnsupportedAudioFileException{
+    public static void restartSong(String[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException{
         music.close();
 
         File file = new File(playlist[pointer]);
         AudioInputStream stream = AudioSystem.getAudioInputStream(file);
         music = AudioSystem.getClip();
         music.open(stream);
-        music.start();
+        playSong();
+
+        addEndOfSongListener(playlist, songTitle);
     }
 
     public static void randomSong(String[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
@@ -100,11 +105,33 @@ public class Main {
         AudioInputStream stream = AudioSystem.getAudioInputStream(file);
         music = AudioSystem.getClip();
         music.open(stream);
-        music.start();
+        playSong();
+
+        addEndOfSongListener(playlist, songTitle);
 
         songTitle.setText(playlist[pointer].substring(0, playlist[pointer].indexOf(".wav")));
     }
 
+    public static void addEndOfSongListener(String[] playlist, JLabel songTitle){
+        music.addLineListener(new LineListener() {
+            @Override
+            public void update(final LineEvent event) {
+                if (event.getType().equals(LineEvent.Type.STOP)) {
+                    if(isSongPlaying && System.currentTimeMillis() - timer > 10000){
+                        try {
+                            nextSong(playlist, songTitle);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (LineUnavailableException e) {
+                            e.printStackTrace();
+                        } catch (UnsupportedAudioFileException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     public static void createGUI(String[] playlist) {
         JFrame f = new JFrame("Music player");
@@ -152,6 +179,8 @@ public class Main {
         f.add(navigation, BorderLayout.PAGE_END);
         f.setVisible(true);
 
+        playSong();
+        addEndOfSongListener(playlist, songTitle);
 
         action.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -170,7 +199,7 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 action.setText("pause");
                 isSongPlaying = true;
-
+                timer = System.currentTimeMillis();
 
                 try {
                     prevSong(playlist, songTitle);
@@ -188,6 +217,7 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 action.setText("pause");
                 isSongPlaying = true;
+                timer = System.currentTimeMillis();
 
                 try {
                     nextSong(playlist, songTitle);
@@ -204,6 +234,7 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 action.setText("pause");
                 isSongPlaying = true;
+                timer = System.currentTimeMillis();
 
                 try {
                     randomSong(playlist, songTitle);
@@ -220,9 +251,10 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 action.setText("pause");
                 isSongPlaying = true;
+                timer = System.currentTimeMillis();
 
                 try {
-                    restartSong(playlist);
+                    restartSong(playlist, songTitle);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 } catch (LineUnavailableException lineUnavailableException) {
