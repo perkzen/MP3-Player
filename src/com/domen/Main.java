@@ -19,12 +19,10 @@ public class Main {
 
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
 
-        String[] playlist = {"Koosen - Mood (Remix).wav", "Avicii - levels.wav", "Day 'N' Nite (Crookers Remix).wav", "HVME - GOOSEBUMPS (Official Video).wav", "Vinne - Pursuit of Happiness (feat. NorthStarAndre).wav"};
-        System.out.println("Commands:\n-play\n-stop\n-quit\n-next\n-prev\n-random");
-        System.out.println();
+        File dir = new File("./songs");
+        File[] playlist = dir.listFiles();
 
-        File file = new File(playlist[pointer]);
-        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(playlist[pointer]);
         music = AudioSystem.getClip();
         music.open(stream);
 
@@ -42,7 +40,7 @@ public class Main {
     }
 
 
-    public static void nextSong(String[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+    public static void nextSong(File[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         music.close();
 
         if (pointer < playlist.length - 1) {
@@ -51,19 +49,18 @@ public class Main {
             pointer = 0;
         }
 
-        File file = new File(playlist[pointer]);
-        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(playlist[pointer]);
         music = AudioSystem.getClip();
         music.open(stream);
         playSong();
 
         addEndOfSongListener(playlist, songTitle);
 
-        songTitle.setText(playlist[pointer].substring(0, playlist[pointer].indexOf(".wav")));
+        songTitle.setText(playlist[pointer].getName().substring(0, playlist[pointer].getName().indexOf(".wav")));
 
     }
 
-    public static void prevSong(String[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+    public static void prevSong(File[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         music.close();
 
         if (pointer > 0) {
@@ -72,22 +69,20 @@ public class Main {
             pointer = playlist.length - 1;
         }
 
-        File file = new File(playlist[pointer]);
-        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(playlist[pointer]);
         music = AudioSystem.getClip();
         music.open(stream);
         playSong();
 
         addEndOfSongListener(playlist, songTitle);
 
-        songTitle.setText(playlist[pointer].substring(0, playlist[pointer].indexOf(".wav")));
+        songTitle.setText(playlist[pointer].getName().substring(0, playlist[pointer].getName().indexOf(".wav")));
     }
 
-    public static void restartSong(String[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException{
+    public static void restartSong(File[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         music.close();
 
-        File file = new File(playlist[pointer]);
-        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(playlist[pointer]);
         music = AudioSystem.getClip();
         music.open(stream);
         playSong();
@@ -95,29 +90,28 @@ public class Main {
         addEndOfSongListener(playlist, songTitle);
     }
 
-    public static void randomSong(String[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+    public static void randomSong(File[] playlist, JLabel songTitle) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
         Random r = new Random();
 
         music.close();
         pointer = r.nextInt(playlist.length);
 
-        File file = new File(playlist[pointer]);
-        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(playlist[pointer]);
         music = AudioSystem.getClip();
         music.open(stream);
         playSong();
 
         addEndOfSongListener(playlist, songTitle);
 
-        songTitle.setText(playlist[pointer].substring(0, playlist[pointer].indexOf(".wav")));
+        songTitle.setText(playlist[pointer].getName().substring(0, playlist[pointer].getName().indexOf(".wav")));
     }
 
-    public static void addEndOfSongListener(String[] playlist, JLabel songTitle){
+    public static void addEndOfSongListener(File[] playlist, JLabel songTitle) {
         music.addLineListener(new LineListener() {
             @Override
             public void update(final LineEvent event) {
                 if (event.getType().equals(LineEvent.Type.STOP)) {
-                    if(isSongPlaying && System.currentTimeMillis() - timer > 10000){
+                    if (isSongPlaying && System.currentTimeMillis() - timer > 10000) {
                         try {
                             nextSong(playlist, songTitle);
                         } catch (IOException e) {
@@ -133,14 +127,14 @@ public class Main {
         });
     }
 
-    public static void createGUI(String[] playlist) {
+    public static void createGUI(File[] playlist) {
         JFrame f = new JFrame("Music player");
         f.setMinimumSize(new Dimension(700, 500));
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel main = new JPanel();
 
-        JLabel songTitle = new JLabel(playlist[pointer].substring(0, playlist[pointer].indexOf(".wav")));
+        JLabel songTitle = new JLabel(playlist[pointer].getName().substring(0, playlist[pointer].getName().indexOf(".wav")));
         songTitle.setBorder(new EmptyBorder(f.getHeight() / 3, 0, 0, 0));
         songTitle.setFont(new Font(songTitle.getFont().getName(), Font.PLAIN, songTitle.getFont().getSize() * 2));
 
@@ -266,4 +260,3 @@ public class Main {
         });
     }
 }
-
